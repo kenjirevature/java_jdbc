@@ -12,119 +12,85 @@ import com.mysql.jdbc.PreparedStatement;
 public class TestJDBCOracleOnAWS {
 	public static void main(String[] args) {
 		int choice=0;
-		
+		DeptDAOImpl deptDAOImpl = new DeptDAOImpl();
 		do {
+			printBorder();
 			System.out.println("Choose an Option");
-			System.out.println("1. List a deprtment");
-			System.out.println("2. Add a deprtment");
+			System.out.println("1. List departments");
+			System.out.println("2. Add a department");
 			System.out.println("3. Update a deprtment");
-			System.out.println("4. Modify a deprtment");
-			System.out.println("5. Insert using StoredProcedure");
+			System.out.println("4. Delete a deprtment");
 			
 			Scanner sc=new Scanner(System.in);
 			choice = sc.nextInt();
-		switch (choice) {
-		case 1:
-		{  
-			String QUERY = "select deptno,dbname,loc from dept_jdbc_k";
-			try(Connection con = ConnectionUtil.getConnection();
-					Statement stmt = con.createStatement();
-					ResultSet rs = stmt.executeQuery(QUERY))
-			    {	
-					while(rs.next()){
-					int no = rs.getInt("deptno");
-					String name = rs.getString("dbname");
-					String location = rs.getString("loc");
-					System.out.println("Connection");
-					System.out.println(no + "," +name+ "," +location );
-				}//try
-			} catch (SQLException e) {e.printStackTrace(); }
-			break;
-		}
-		case 2: 
-		{
-			String QUERY = "insert into dept_jdbc_k values(80, 'Marketing', 'Reston')";
-			try(Connection con = ConnectionUtil.getConnection();
-					Statement stmt = con.createStatement())
-				{ int result = stmt.executeUpdate(QUERY);
-				System.out.println(" Result is :"+result);
-			     if (result==1) 
-			    	System.out.println(" Data Inserted");
-			     else
-			    	 System.out.println(" Issue in data insertion ");
-			    } catch (SQLException e) {e.printStackTrace(); }
-			break;
-		}
-		case 3:
-		{	int n= rowUpdate();
-			System.out.println("Row updated");
-			break;
-		}
-		case 4: 
-		{
-			int n=rowDelete();
-			 System.out.println("Row deleted : "+n);
-			break;
-		}
-		case 5: 
-		{
-			insertUsingProcedure();
-			System.out.println("Row inserted using procedure");
-			break;
-		}	
-	}	
-	}while(choice!=6);
+			switch (choice) {
+				case 1:
+				{  
+					deptDAOImpl.getAllDept();
+					break;
+				}
+				case 2: 
+				{
+					print("No.: ");
+					int deptno = getInt(sc);
+					print("Name: ");
+					String name = getString(sc);
+					print("Location: ");
+					
+					String loc = getString(sc);
+					
+					deptDAOImpl.addDept(new DEPT(deptno,name,loc) );
+					break;
+				}
+				case 3:
+				{	
+					print("No.: ");
+					int deptno = getInt(sc);
+					printBorder();
+					deptDAOImpl.updateDeptById(deptno);;
+					System.out.println("Row updated");
+					break;
+				}
+				case 4: 
+				{
+					print("No.: ");
+					int deptno = getInt(sc);
+					printBorder();
+					deptDAOImpl.deleteDeptById(deptno);
+					 System.out.println("Row deleted : "+80);
+					break;
+				}
+			}	
+		}while(choice!=6);
+
 	}
-	
-	public static int rowUpdate()
-	{
-		int row=0;
-		String QUERY = "UPDATE dept_jdbc_k SET dname='IT80' WHERE deptno=?";
-		 try (Connection conn = ConnectionUtil.getConnection();
-	             java.sql.PreparedStatement preparedStatement = conn.prepareStatement(QUERY)) 
-	     {	preparedStatement.setInt(1, 80);
-	        row = preparedStatement.executeUpdate();
-	         // rows affected
-	         System.out.println(row);
-	    	 
-	     }catch( SQLException e)
-	     {
-	    	 System.out.println(" Row cannot be updated");
-	     }
-		   return row;
+	public static String getString (Scanner sc) {
+		return sc.next();
 	}
-	
-	public static int rowDelete()
-	{
-		int row=0;
-		String QUERY = "Delete from dept_jdbc_k where deptno = ?";
-	     try (Connection conn = ConnectionUtil.getConnection();
-	             java.sql.PreparedStatement preparedStatement = conn.prepareStatement(QUERY)) 
-	     {		
-	    	 preparedStatement.setInt(1, 80);
-	        row = preparedStatement.executeUpdate();
-	         // rows affected
-	         System.out.println(row);
-	    	 
-	     }catch( SQLException e)
-	     {
-	    	 System.out.println(" Row cannot be deleted");
-	     }
-		   return row; 
+	public static int getInt (Scanner sc) {
+		return sc.nextInt();
 	}
-	
-	
-	private static void insertUsingProcedure() {
-		 try (Connection conn = ConnectionUtil.getConnection();
-		 CallableStatement stmt=conn.prepareCall("{call create_JDBC_K(?,?,?)}"))
-	     {	 stmt.setInt(1,19);  
-			 stmt.setString(2,"CEO");  
-			 stmt.setString(3,"Reston");
-			 stmt.execute();
-	     } catch (SQLException e) {
-			e.printStackTrace();
+	public static void print(Object o) {
+		System.out.print(o);
+	}
+	public static void println(Object o) {
+		System.out.println(o);
+	}
+	public static void printBorder() {
+		int wide = 80;
+		for (int i=0; i<wide;i++) {
+			print("*");
 		}
+		println("");
 	}
+	public static void printBorder(int w) {
+		int wide = w;
+		for (int i=0; i<wide;i++) {
+			print("*");
+		}
+		println("");
+	}
+
 }
 
 		
